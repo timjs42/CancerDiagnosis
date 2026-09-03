@@ -19,3 +19,6 @@ cancer-dx = "cancer_dx.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"cancer_dx.web" = ["static/*.html"]
