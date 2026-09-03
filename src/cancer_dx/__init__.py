@@ -3,6 +3,7 @@ cancer_dx: A Naive Bayes classifier that ranks candidate cancer
 types/stages from tumor marker levels (HE4, AFP, CA19-9).
 """
 
+from .data import load_patients
 from .model import (
     ALL_MARKERS,
     CLASS_MARKERS,
@@ -15,6 +16,7 @@ __all__ = [
     "ALL_MARKERS",
     "CLASS_MARKERS",
     "HEALTHY",
+    "load_patients",
     "predict_class",
     "rank_classes",
 ]
