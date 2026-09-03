@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cancer-dx</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222; }
+  h1 { margin-bottom: 4px; }
+  p.subtitle { color: #666; margin-top: 0; }
+  form { display: grid; gap: 12px; margin: 24px 0; }
+  label { font-weight: 600; font-size: 14px; }
+  input { padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 6px; width: 100%; box-sizing: border-box; }
+  button { padding: 10px; font-size: 15px; border: none; border-radius: 6px; background: #2563eb; color: white; cursor: pointer; }
+  button:hover { background: #1d4ed8; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 14px; }
+  #result { display: none; }
+  .predicted { font-weight: 700; color: #16a34a; }
+  .error { color: #dc2626; margin-top: 12px; }
+  footer { margin-top: 40px; font-size: 12px; color: #999; }
+</style>
+</head>
+<body>
+  <h1>cancer-dx</h1>
+  <p class="subtitle">Gaussian Naive Bayes classifier &mdash; enter tumor marker levels to rank candidate classes.</p>
+
+  <form id="predict-form">
+    <div>
+      <label for="name">Patient name</label>
+      <input id="name" type="text" value="Patient">
+    </div>
+    <div>
+      <label for="he4">HE4</label>
+      <input id="he4" type="number" step="any" required>
+    </div>
+    <div>
+      <label for="afp">AFP</label>
+      <input id="afp" type="number" step="any" required>
+    </div>
+    <div>
+      <label for="ca19-9">CA19-9</label>
+      <input id="ca19-9" type="number" step="any" required>
+    </div>
+    <button type="submit">Classify</button>
+  </form>
+
+  <div id="error" class="error"></div>
+
+  <div id="result">
+    <p>Predicted class for <strong id="result-name"></strong>: <span id="result-class" class="predicted"></span></p>
+    <table>
+      <thead><tr><th>Cancer / Stage</th><th>Probability</th></tr></thead>
+      <tbody id="result-body"></tbody>
+    </table>
+  </div>
+
+  <footer>Educational project &mdash; illustrative parameters, not a diagnostic tool.</footer>
+
+  <script>
+    const form = document.getElementById('predict-form');
+    const errorBox = document.getElementById('error');
+    const resultBox = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.textContent = '';
+      resultBox.style.display = 'none';
+
+      const payload = {
+        name: document.getElementById('name').value || 'Patient',
+        HE4: parseFloat(document.getElementById('he4').value),
+        AFP: parseFloat(document.getElementById('afp').value),
+        'CA19-9': parseFloat(document.getElementById('ca19-9').value),
+      };
+
+      try {
+        const res = await fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Request failed');
+        }
+
+        document.getElementById('result-name').textContent = data.name;
+        document.getElementById('result-class').textContent = data.predicted_class;
+        const body = document.getElementById('result-body');
+        body.innerHTML = '';
+        data.ranked.slice(0, 5).forEach((row) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${row.cancer_class}</td><td>${row.probability.toFixed(3)}</td>`;
+          body.appendChild(tr);
+        });
+        resultBox.style.display = 'block';
+      } catch (err) {
+        errorBox.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
