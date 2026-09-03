@@ -8,6 +8,22 @@ from three tumor marker levels: **HE4**, **AFP**, and **CA19-9**.
 > a real clinical dataset. This code should never be used to inform an
 > actual medical decision.
 
+## Quick start
+
+No install required — the classifier only uses the Python standard library.
+
+```bash
+git clone https://github.com/timjs42/CancerDiagnosis.git
+cd CancerDiagnosis
+python3 run.py
+```
+
+That runs the bundled example patients. Try a single patient of your own:
+
+```bash
+python3 run.py --he4 180 --afp 6 --ca19-9 22 --name Alice
+```
+
 ## How it works
 
 Each candidate class has one *signal* marker — its medically relevant
