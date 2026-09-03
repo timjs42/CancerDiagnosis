@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cancer-dx"
+version = "0.1.0"
+description = "Gaussian Naive Bayes classifier that ranks candidate cancer types/stages from tumor marker levels"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Tom J" }]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+cancer-dx = "cancer_dx.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
